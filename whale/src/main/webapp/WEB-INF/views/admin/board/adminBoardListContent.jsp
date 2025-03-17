@@ -33,11 +33,11 @@
 		<form action="adminBoardListView" method="post" >
 	        <select name="searchType" id="searchType">
 			    <option value="user_id" selected >아이디</option>
-			    <option value="post_title" <c:if test="${searchType == 'post_title'}">selected</c:if>>제목</option>
-			    <option value="all_text" <c:if test="${searchType == 'all_text'}">selected</c:if>>내용</option>
-			    <option value="idPostFeed" <c:if test="${searchType == 'idPostFeed'}">selected</c:if>>전체</option>
+			    <option value="post_title" <c:if test="${searchDto.searchType == 'post_title'}">selected</c:if>>제목</option>
+			    <option value="all_text" <c:if test="${searchDto.searchType == 'all_text'}">selected</c:if>>내용</option>
+			    <option value="idPostFeed" <c:if test="${searchDto.searchType == 'idPostFeed'}">selected</c:if>>전체</option>
 			</select>
-	        <input type="text" name="sk" size="50" value="${not empty searchKeyword ? searchKeyword : ''}" />
+	        <input type="text" name="sk" size="50" value="${not empty searchDto.searchKeyword ? searchDto.searchKeyword : ''}" />
 	        <input type="submit" value="검색" />
 		</form>
     </div>
@@ -56,13 +56,13 @@
             </tr>
         </thead>
         <tbody>
-			<c:if test="${empty list}">
+			<c:if test="${empty searchDto.list}">
 			    <tr>
 			        <td colspan="8" align="center">결과가 없습니다.</td>
 			    </tr>
 			</c:if>
-			<c:if test="${not empty list}">
-	        <c:forEach items="${list }" var="dto" >
+			<c:if test="${not empty searchDto.list}">
+	        <c:forEach items="${searchDto.list }" var="dto" >
 				<tr>
 					<c:if test="${not empty dto.feed_id && dto.feed_id != 0}">
 					<td style="width: 10%;">피드</td>
@@ -73,10 +73,10 @@
 					<td style="width: 10%;"><fmt:formatDate value="${dto.date_field}" pattern="yyyy.MM.dd" /></td>
 					<td style="width: 10%;">${dto.report_feed_count }</td>
 					<td style="width: 10%;">
-						<button onclick = "location.href = 'adminBoardFeedContentView?f=${dto.feed_id }&page=${ulsearchVO.page}&sk=${searchKeyword}&communityName=${dto.community_name }&searchType=${searchType }'">
+						<button onclick = "location.href = 'adminBoardFeedContentView?f=${dto.feed_id }&page=${searchDto.ulsearchVO.page}&sk=${searchDto.searchKeyword}&communityName=${dto.community_name }&searchType=${searchDto.searchType }'">
 							조회
 						</button>&nbsp;&nbsp;&nbsp;&nbsp;
-						<%-- <button onclick = "feedDelete('${dto.feed_id}','${ulsearchVO.page}','${searchType }')" >삭제</button> --%>
+						<%-- <button onclick = "feedDelete('${dto.feed_id}','${searchDto.ulsearchVO.page}','${searchDto.searchType }')" >삭제</button> --%>
 					</td>
 					</c:if>
 					
@@ -89,10 +89,10 @@
 					<td style="width: 10%;"><fmt:formatDate value="${dto.date_field}" pattern="yyyy.MM.dd" /></td>
 					<td style="width: 10%;">${dto.report_post_count }</td>
 					<td style="width: 10%;">
-						<button onclick = "location.href='adminBoardPostContentView?postId=${dto.post_id }&page=${ulsearchVO.page}&sk=${searchKeyword}&communityName=${dto.community_name }&searchType=${searchType }'">
+						<button onclick = "location.href='adminBoardPostContentView?postId=${dto.post_id }&page=${searchDto.ulsearchVO.page}&sk=${searchDto.searchKeyword}&communityName=${dto.community_name }&searchType=${searchDto.searchType }'">
 							조회
 						</button>&nbsp;&nbsp;&nbsp;&nbsp;
-						<%-- <button onclick = "postDelete('${dto.post_id }','${ulsearchVO.page}','${searchType }')" >삭제</button> --%>
+						<%-- <button onclick = "postDelete('${dto.post_id }','${searchDto.ulsearchVO.page}','${searchDto.searchType }')" >삭제</button> --%>
 					</td>
 					</c:if>
 					
@@ -105,41 +105,41 @@
 			    <td colspan="8">
 			        <c:choose>
 			        
-			            <c:when test="${not empty ulsearchVO}">
-			                <a href="adminBoardListView?page=1&sk=${searchKeyword}&searchType=${searchType}"
-			                   class="${ulsearchVO.page == 1 ? 'pagination-disabled' : ''}">[처음]</a>
+			            <c:when test="${not empty searchDto.ulsearchVO}">
+			                <a href="adminBoardListView?page=1&sk=${searchDto.searchKeyword}&searchType=${searchDto.searchType}"
+			                   class="${searchDto.ulsearchVO.page == 1 ? 'pagination-disabled' : ''}">[처음]</a>
 			
-			                <a href="adminBoardListView?page=${ulsearchVO.page - 1}&sk=${searchKeyword}&searchType=${searchType}"
-			                   class="${ulsearchVO.page == 1 ? 'pagination-disabled' : ''}">[이전]</a>
+			                <a href="adminBoardListView?page=${searchDto.ulsearchVO.page - 1}&sk=${searchDto.searchKeyword}&searchType=${searchDto.searchType}"
+			                   class="${searchDto.ulsearchVO.page == 1 ? 'pagination-disabled' : ''}">[이전]</a>
 			
-			                <c:forEach begin="${ulsearchVO.pageStart}" end="${ulsearchVO.pageEnd}" var="i">
+			                <c:forEach begin="${searchDto.ulsearchVO.pageStart}" end="${searchDto.ulsearchVO.pageEnd}" var="i">
 			                    <c:choose>
-			                        <c:when test="${i eq ulsearchVO.page}">
+			                        <c:when test="${i eq searchDto.ulsearchVO.page}">
 			                            <span class="pagination-active">${i} &nbsp; &nbsp;</span>
 			                        </c:when>
 			                        <c:otherwise>
-			                            <a href="adminBoardListView?page=${i}&sk=${searchKeyword}&searchType=${searchType}">${i}</a> &nbsp; &nbsp;
+			                            <a href="adminBoardListView?page=${i}&sk=${searchDto.searchKeyword}&searchType=${searchDto.searchType}">${i}</a> &nbsp; &nbsp;
 			                        </c:otherwise>
 			                    </c:choose>
 			                </c:forEach>
 			
-			                <a href="adminBoardListView?page=${ulsearchVO.page + 1}&sk=${searchKeyword}&searchType=${searchType}"
-			                   class="${ulsearchVO.page == ulsearchVO.totPage ? 'pagination-disabled' : ''}">[다음]</a>
+			                <a href="adminBoardListView?page=${searchDto.ulsearchVO.page + 1}&sk=${searchDto.searchKeyword}&searchType=${searchDto.searchType}"
+			                   class="${searchDto.ulsearchVO.page == ulsearchVO.totPage ? 'pagination-disabled' : ''}">[다음]</a>
 			
-			                <a href="adminBoardListView?page=${searchVO.totPage}&sk=${searchKeyword}&searchType=${searchType}"
-			                   class="${ulsearchVO.page == ulsearchVO.totPage ? 'pagination-disabled' : ''}">[마지막]</a>
+			                <a href="adminBoardListView?page=${searchVO.totPage}&sk=${searchDto.searchKeyword}&searchType=${searchDto.searchType}"
+			                   class="${searchDto.ulsearchVO.page == ulsearchVO.totPage ? 'pagination-disabled' : ''}">[마지막]</a>
 			            </c:when>
 			            
 			            <c:otherwise>
-			                <a href="adminBoardListView?page=1&sk=${searchKeyword}&searchType=${searchType}" class="pagination-disabled">[처음]</a>
+			                <a href="adminBoardListView?page=1&sk=${searchDto.searchKeyword}&searchType=${searchDto.searchType}" class="pagination-disabled">[처음]</a>
 			
-			                <a href="adminBoardListView?page=1&sk=${searchKeyword}&searchType=${searchType}" class="pagination-disabled">[이전]</a>
+			                <a href="adminBoardListView?page=1&sk=${searchDto.searchKeyword}&searchType=${searchDto.searchType}" class="pagination-disabled">[이전]</a>
 			
 			                <span class="pagination-active">1 &nbsp; &nbsp;</span>
 			
-			                <a href="adminBoardListView?page=1&sk=${searchKeyword}&searchType=${searchType}" class="pagination-disabled">[다음]</a>
+			                <a href="adminBoardListView?page=1&sk=${searchDto.searchKeyword}&searchType=${searchDto.searchType}" class="pagination-disabled">[다음]</a>
 			
-			                <a href="adminBoardListView?page=1&sk=${searchKeyword}&searchType=${searchType}" class="pagination-disabled">[마지막]</a>
+			                <a href="adminBoardListView?page=1&sk=${searchDto.searchKeyword}&searchType=${searchDto.searchType}" class="pagination-disabled">[마지막]</a>
 			            </c:otherwise>
 			            
 			        </c:choose>

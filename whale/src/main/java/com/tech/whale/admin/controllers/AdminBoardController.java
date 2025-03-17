@@ -1,7 +1,6 @@
 package com.tech.whale.admin.controllers;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,7 +8,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -17,72 +15,62 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.tech.whale.admin.board.service.AdminBoardDelLogListService;
 import com.tech.whale.admin.board.service.AdminBoardFeedDelete;
 import com.tech.whale.admin.board.service.AdminBoardListService;
 import com.tech.whale.admin.board.service.AdminBoardPostContentService;
 import com.tech.whale.admin.board.service.AdminBoardPostDelete;
 import com.tech.whale.admin.board.service.AdminNoticeListService;
 import com.tech.whale.admin.board.service.AdminWhaleNotiService;
-import com.tech.whale.admin.board.service.AdminBoardDelLogListService;
 import com.tech.whale.admin.dao.AdminIDao;
+import com.tech.whale.admin.dto.AdminPFCDto;
+import com.tech.whale.admin.dto.AdminSearchDto;
+import com.tech.whale.admin.service.AdminMyImgUrl;
 import com.tech.whale.admin.util.AdminSearchVO;
 import com.tech.whale.community.dao.ComDao;
 import com.tech.whale.community.dto.CommentDto;
 import com.tech.whale.community.dto.PostDto;
 import com.tech.whale.community.service.ComLikeCommentService;
-import com.tech.whale.community.service.ComRegService;
 import com.tech.whale.community.service.PostUpdateService;
 import com.tech.whale.feed.dao.FeedDao;
 import com.tech.whale.feed.dto.FeedCommentDto;
 import com.tech.whale.feed.dto.FeedDto;
 import com.tech.whale.feed.service.FeedCommentService;
 
+import lombok.RequiredArgsConstructor;
+
 
 @Controller
 @RequestMapping("/admin")
+@RequiredArgsConstructor
 public class AdminBoardController {
 
-	@Autowired
-	private AdminBoardListService adminBoardListService;
-	@Autowired
-	private AdminBoardPostContentService adminBoardPostContentService;
-	@Autowired
-	private ComLikeCommentService comLikeCommentService;
-	@Autowired
-	private AdminBoardPostDelete adminBoardPostDelete;
-	@Autowired
-	private AdminBoardFeedDelete adminBoardFeedDelete;
-	@Autowired
-	private FeedCommentService feedCommentsService;
-	@Autowired
-	private AdminNoticeListService adminNoticeListService;
-	@Autowired
-	private AdminWhaleNotiService adminWhaleNotiService;
-	@Autowired
-	private AdminBoardDelLogListService AdminBoardDelLogListService;
-	
-	@Autowired
-	private PostUpdateService postUpdateService;
-	
-	@Autowired
-	private AdminIDao adminIDao;
-	@Autowired
-	private ComDao comDao;
-	@Autowired
-	private FeedDao feedDao;
+	private final AdminBoardListService adminBoardListService;
+	private final AdminBoardPostContentService adminBoardPostContentService;
+	private final ComLikeCommentService comLikeCommentService;
+	private final AdminBoardPostDelete adminBoardPostDelete;
+	private final AdminBoardFeedDelete adminBoardFeedDelete;
+	private final FeedCommentService feedCommentsService;
+	private final AdminNoticeListService adminNoticeListService;
+	private final AdminWhaleNotiService adminWhaleNotiService;
+	private final AdminBoardDelLogListService AdminBoardDelLogListService;
+	private final PostUpdateService postUpdateService;
+	private final ComDao comDao;
+	private final FeedDao feedDao;
+	private final AdminMyImgUrl adminMyImgUrl;
 	
 	@ModelAttribute("myId")
     public String addUserIdToModel(HttpSession session) {
         return (String) session.getAttribute("user_id");
     }
 	
+	// 본인 아이디 이미지 유알엘
 	@ModelAttribute("myImgUrl")
 	public String myImgUrl(Model model,HttpSession session) {
-		String myId = (String) session.getAttribute("user_id");
-		String myImgSty = adminIDao.myImg(myId);
-		return myImgSty;
+		return adminMyImgUrl.myImgSty(model);
 	}
 	
+	// 서브 메뉴바 이름 삽입. 순서있어야 해서 LinkedHashMap 사용.
 	public void boardSubBar(Model model) {
 	    Map<String, String> subMenu = new LinkedHashMap<>();
 	    subMenu.put("adminBoardListView", "게시글");
@@ -94,6 +82,7 @@ public class AdminBoardController {
 	    model.addAttribute("subMenu", subMenu);
 	}
 	
+	//게시판 목록 검색
 	@RequestMapping("/adminBoardListView")
 	public String adminBoardListView(
 			HttpServletRequest request,
@@ -109,8 +98,11 @@ public class AdminBoardController {
 	    		"/whale/static/css/admin/account/adminAccountUserListContent.css");
 	    boardSubBar(model);
 	    
-	    adminBoardListService.execute(model);
+	    AdminSearchDto<AdminPFCDto> searchDto =
+	    		adminBoardListService.execute(model);
+	    model.addAttribute("searchDto", searchDto);
 	    
+	    System.out.println(searchDto.getList().size()+" < 리스트 개수");
 		return "/admin/view/adminOutlineForm";
 	}
 	

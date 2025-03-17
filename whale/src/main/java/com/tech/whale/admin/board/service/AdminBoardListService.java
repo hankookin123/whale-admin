@@ -5,23 +5,24 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
 import com.tech.whale.admin.dao.AdminIDao;
 import com.tech.whale.admin.dto.AdminPFCDto;
-import com.tech.whale.admin.service.AdminServiceInter;
+import com.tech.whale.admin.dto.AdminSearchDto;
 import com.tech.whale.admin.util.AdminSearchVO;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
-public class AdminBoardListService implements AdminServiceInter{
+@RequiredArgsConstructor
+public class AdminBoardListService{
 	
-	@Autowired
-	private AdminIDao adminIDao;
+	private final AdminIDao adminIDao;
 	
-	@Override
-	public void execute(Model model) {
+	// 게시판 목록검색
+	public AdminSearchDto<AdminPFCDto> execute(Model model) {
 		
 		Map<String, Object> map = model.asMap();
 		HttpServletRequest request =
@@ -99,13 +100,21 @@ public class AdminBoardListService implements AdminServiceInter{
 		}else if(idPostFeed.equals("idPostFeed")) {
 			list = adminIDao.adminBoardList(rowStart,rowEnd,searchKeyword,"4");
 		}
+		AdminSearchDto<AdminPFCDto> searchDto =
+				new AdminSearchDto<>();
+		searchDto.setSearchType(brdTitle);
+		searchDto.setList(list);
+		searchDto.setSearchKeyword(searchKeyword);
+		searchDto.setUlsearchVO(searchVO);
+		searchDto.setUltotRowcnt(total);
 		
-		model.addAttribute("searchKeyword", searchKeyword);
-		model.addAttribute("searchType", brdTitle);
-		model.addAttribute("list", list);
-		model.addAttribute("ultotRowcnt", total);
-		model.addAttribute("ulsearchVO", searchVO);
+//		model.addAttribute("searchKeyword", searchKeyword);
+//		model.addAttribute("searchType", brdTitle);
+//		model.addAttribute("list", list);
+//		model.addAttribute("ultotRowcnt", total);
+//		model.addAttribute("ulsearchVO", searchVO);
 		
+		return searchDto;
 	}
 	
 	public void comments(Model model) {
